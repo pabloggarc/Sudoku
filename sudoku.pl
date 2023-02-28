@@ -16,9 +16,9 @@ sudoku([E00, E01, E02, E03, E04, E05, E06, E07, E08,
     imprimirTablero(E40, E41, E42, E43, E44, E45, E46, E47, E48),
     imprimirTablero(E50, E51, E52, E53, E54, E55, E56, E57, E58),
     write(-----------------------------------),nl,
-    imprimirTablero(E60, E61, E62, E63, E64, E65, E66, E67, E68),
-    imprimirTablero(E70, E71, E72, E73, E74, E75, E76, E77, E78),
-    imprimirTablero(E80, E81, E82, E83, E84, E85, E86, E87, E88),
+    %imprimirTablero(E60, E61, E62, E63, E64, E65, E66, E67, E68),
+    %imprimirTablero(E70, E71, E72, E73, E74, E75, E76, E77, E78),
+    %imprimirTablero(E80, E81, E82, E83, E84, E85, E86, E87, E88),
     write(-----------------------------------),nl.
 
 %Predicado que imprime una fila del tablero
@@ -122,4 +122,67 @@ cuadro(T, I, C) :-
 
     %Creamos una nueva lista con los valores
     C = [X1, X2, X3, X4, X5, X6, X7, X8, X9].
+
+    %Predicado que al preguntar devuelve todas las posibilidades de un elemento en una lista
+    %Hazme un predicado que haga una cosa u otra dependiendo de si un elemento es par o impar
+
+    posibilidades(T, F, C, S, P):-
+    (I is F * 9 + C,
+    nth0(I, T, X),
+    member(X, [1, 2, 3, 4, 5, 6, 7, 8, 9]),
+    P = [X]);
+    (L = [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    fila(T, F, Fila),
+    columna(T, C, Columna),
+    cuadro(T, S, Cuadro),
+    subtract(L, Fila, L1),
+    subtract(L1, Columna, L2),
+    subtract(L2, Cuadro, L3),
+    P = L3).
+
+    %Predicado que al preguntar rellena todas las posibilidades de los elementos restantes de una fila
+    posibilidadesFila(T, F, P):-
+    posibilidades(T, F, 0, 3 * (F // 3), P0),
+    posibilidades(T, F, 1, 3 * (F // 3), P1),
+    posibilidades(T, F, 2, 3 * (F // 3), P2),
+    posibilidades(T, F, 3, 3 * (F // 3) + 1, P3),
+    posibilidades(T, F, 4, 3 * (F // 3) + 1, P4),
+    posibilidades(T, F, 5, 3 * (F // 3) + 1, P5),
+    posibilidades(T, F, 6, 3 * (F // 3) + 2, P6),
+    posibilidades(T, F, 7, 3 * (F // 3) + 2, P7),
+    posibilidades(T, F, 8, 3 * (F // 3) + 2, P8),
+    P = [P0, P1, P2, P3, P4, P5, P6, P7, P8].
+
+    posibilidadesSudoku(T, P):-
+    posibilidadesFila(T, 0, P0),
+    posibilidadesFila(T, 1, P1),
+    posibilidadesFila(T, 2, P2),
+    posibilidadesFila(T, 3, P3),
+    posibilidadesFila(T, 4, P4),
+    posibilidadesFila(T, 5, P5),
+    posibilidadesFila(T, 6, P6),
+    posibilidadesFila(T, 7, P7),
+    posibilidadesFila(T, 8, P8),
+    append(P0, P1, P01),
+    append(P01, P2, P012),
+    append(P012, P3, P0123),
+    append(P0123, P4, P01234),
+    append(P01234, P5, P012345),
+    append(P012345, P6, P0123456),
+    append(P0123456, P7, P01234567),
+    append(P01234567, P8, P012345678),
+    P = P012345678.
+
+
+    
+    
+
+
+
+
+    
+
+    
+
+
 
