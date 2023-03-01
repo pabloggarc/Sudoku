@@ -1,3 +1,5 @@
+sudoku([.,.,3,.,2,.,7,.,.,5,.,.,.,.,.,4,.,3,.,.,.,3,.,.,.,2,5,.,.,5,.,1,.,6,.,.,.,.,4,8,.,7,.,.,.,2,3,7,6,.,4,8,.,.,.,8,.,.,.,2,.,7,.,3,.,.,4,.,.,2,.,8,.,.,9,.,.,.,.,6,.]).
+
 %Predicado que declara e imprime el tablero inicial
 sudoku([E00, E01, E02, E03, E04, E05, E06, E07, E08,
        E10, E11, E12, E13, E14, E15, E16, E17, E18,
@@ -16,9 +18,9 @@ sudoku([E00, E01, E02, E03, E04, E05, E06, E07, E08,
     imprimirTablero(E40, E41, E42, E43, E44, E45, E46, E47, E48),
     imprimirTablero(E50, E51, E52, E53, E54, E55, E56, E57, E58),
     write(-----------------------------------),nl,
-    %imprimirTablero(E60, E61, E62, E63, E64, E65, E66, E67, E68),
-    %imprimirTablero(E70, E71, E72, E73, E74, E75, E76, E77, E78),
-    %imprimirTablero(E80, E81, E82, E83, E84, E85, E86, E87, E88),
+    imprimirTablero(E60, E61, E62, E63, E64, E65, E66, E67, E68),
+    imprimirTablero(E70, E71, E72, E73, E74, E75, E76, E77, E78),
+    imprimirTablero(E80, E81, E82, E83, E84, E85, E86, E87, E88),
     write(-----------------------------------),nl.
 
 %Predicado que imprime una fila del tablero
@@ -34,9 +36,6 @@ imprimirTablero(EX0, EX1, EX2, EX3, EX4, EX5, EX6, EX7, EX8) :-
     write(EX8), tab(1), write('I'),
     nl.
 
-
-%Predicado que al preguntar devuelve en F la fila i-ésima del tablero T (F e [0, 8])
-%El primero de la fila i-ésima será 9xi, el segundo (9xi)+1, ... , (9xi)+k
 
 fila(T, I, F) :- 
     %Calculamos índices en T
@@ -173,16 +172,113 @@ cuadro(T, I, C) :-
     append(P01234567, P8, P012345678),
     P = P012345678.
 
+    eliminarAparicionesFila(T, F, E, P):-
+    fila(T, F, Fila),
+    nth0(0, Fila, X0),
+    nth0(1, Fila, X1),
+    nth0(2, Fila, X2),
+    nth0(3, Fila, X3),
+    nth0(4, Fila, X4),
+    nth0(5, Fila, X5),
+    nth0(6, Fila, X6),
+    nth0(7, Fila, X7),
+    nth0(8, Fila, X8),
+    subtract(X0, E, P0),
+    subtract(X1, E, P1),
+    subtract(X2, E, P2),
+    subtract(X3, E, P3),
+    subtract(X4, E, P4),
+    subtract(X5, E, P5),
+    subtract(X6, E, P6),
+    subtract(X7, E, P7),
+    subtract(X8, E, P8),
+    reemplazar(T, (F*9), P0, T0),
+    reemplazar(T0, (F*9)+1, P1, T1),
+    reemplazar(T1, (F*9)+2, P2, T2),
+    reemplazar(T2, (F*9)+3, P3, T3),
+    reemplazar(T3, (F*9)+4, P4, T4),
+    reemplazar(T4, (F*9)+5, P5, T5),
+    reemplazar(T5, (F*9)+6, P6, T6),
+    reemplazar(T6, (F*9)+7, P7, T7),
+    reemplazar(T7, (F*9)+8, P8, T8),
+    P = T8.
+
+    eliminarAparicionesColumna(T, C, E, P):-
+    columna(T, C, Columna),
+    nth0(0, Columna, X0),
+    nth0(1, Columna, X1),
+    nth0(2, Columna, X2),
+    nth0(3, Columna, X3),
+    nth0(4, Columna, X4),
+    nth0(5, Columna, X5),
+    nth0(6, Columna, X6),
+    nth0(7, Columna, X7),
+    nth0(8, Columna, X8),
+    subtract(X0, E, P0),
+    subtract(X1, E, P1),
+    subtract(X2, E, P2),
+    subtract(X3, E, P3),
+    subtract(X4, E, P4),
+    subtract(X5, E, P5),
+    subtract(X6, E, P6),
+    subtract(X7, E, P7),
+    subtract(X8, E, P8),
+    reemplazar(T, C, P0, T0),
+    reemplazar(T0, C+9, P1, T1),
+    reemplazar(T1, C+18, P2, T2),
+    reemplazar(T2, C+27, P3, T3),
+    reemplazar(T3, C+36, P4, T4),
+    reemplazar(T4, C+45, P5, T5),
+    reemplazar(T5, C+54, P6, T6),
+    reemplazar(T6, C+63, P7, T7),
+    reemplazar(T7, C+72, P8, T8),
+    P = T8.
+
+    eliminarAparicionesCuadro(T, S, E, P):-
+    cuadro(T, S, Cuadro),
+    nth0(0, Cuadro, X0),
+    nth0(1, Cuadro, X1),
+    nth0(2, Cuadro, X2),
+    nth0(3, Cuadro, X3),
+    nth0(4, Cuadro, X4),
+    nth0(5, Cuadro, X5),
+    nth0(6, Cuadro, X6),
+    nth0(7, Cuadro, X7),
+    nth0(8, Cuadro, X8),
+    subtract(X0, E, P0),
+    subtract(X1, E, P1),
+    subtract(X2, E, P2),
+    subtract(X3, E, P3),
+    subtract(X4, E, P4),
+    subtract(X5, E, P5),
+    subtract(X6, E, P6),
+    subtract(X7, E, P7),
+    subtract(X8, E, P8),
+    reemplazar(T, 3 * S, P0, T0),
+    reemplazar(T0, 3 * S + 1, P1, T1),
+    reemplazar(T1, 3 * S + 2, P2, T2),
+    reemplazar(T2, 3 * S + 9, P3, T3),
+    reemplazar(T3, 3 * S + 10, P4, T4),
+    reemplazar(T4, 3 * S + 11, P5, T5),
+    reemplazar(T5, 3 * S + 18, P6, T6),
+    reemplazar(T6, 3 * S + 19, P7, T7),
+    reemplazar(T7, 3 * S + 20, P8, T8),
+    P = T8.
+
+    simplificacion0(T, F, C, S, P):-
+    I is F * 9 + C,
+    (nth0(I, T, X)),
+    length(X, L),
+    L = 1,
+    eliminarAparicionesFila(T, F, X, T0),
+    eliminarAparicionesColumna(T0, C, X, T1),
+    eliminarAparicionesCuadro(T1, S, X, T2),
+    reemplazar(T2, I, X, P0),
+    P = P0.
+    
 
     
-    
 
-
-
-
-    
-
-    
-
-
-
+    %predicado que reemplaza un elemento por otro en una lista
+    reemplazar([_|T], 0, X, [X|T]).
+    reemplazar([H|T], I, X, [H|R]):- I > 0, NI is I - 1, reemplazar(T, NI, X, R).
