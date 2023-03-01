@@ -1,26 +1,58 @@
 sudoku([.,.,3,.,2,.,7,.,.,5,.,.,.,.,.,4,.,3,.,.,.,3,.,.,.,2,5,.,.,5,.,1,.,6,.,.,.,.,4,8,.,7,.,.,.,2,3,7,6,.,4,8,.,.,.,8,.,.,.,2,.,7,.,3,.,.,4,.,.,2,.,8,.,.,9,.,.,.,.,6,.],P).
 
-%%%UTILIDADES
+%%%---UTILIDADES---
 
-%predicados que reemplazan un elemento por otro en una lista
+%Reemplazar el primer elemento de una lista por un elemento dado
 reemplazar([_|T], 0, X, [X|T]).
-reemplazar([H|T], I, X, [H|R]):- I > 0, NI is I - 1, reemplazar(T, NI, X, R).
 
-%%%SUDOKU
+%Reemplazar el elemento i-ésimo de una lista por un elemento dado (recursividad)
+reemplazar([H|T], I, X, [H|R]):- 
+    I > 0, 
+    NA is I - 1, 
+    reemplazar(T, NA, X, R).
+
+
+%%%---SUDOKU---
 
 %Predicado que declara e imprime el tablero inicial
 sudoku([X|Y],P) :-
-    imprimirElemento([X|Y], 0).
+    imprimirElemento([X|Y], 1).
 
-%Hecho que para la impresión por pantalla del tablero
+
+%%%---IMPRESIÓN POR PANTALLA DEL TABLERO (ASCII ART)---
+
+%Hecho que para la impresión por pantalla del tablero cuando ya no hay más elementos
 imprimirElemento([], _).
 
-%Predicado que imprime el tablero del sudoku
+%Predicado que empieza la impresión del tablero
 imprimirElemento([X|Y], I):-
-    write(X), tab(1),
-    (((0 is I mod 9), (I\=0), write('I'), nl);
-    ((0 is I mod 3), write('I'), tab(1));
-    (write('|'), tab(1))),
+    (1 is I),
+    write('+-------+-------+-------+'),nl,
+    write('| '), write(X), write(' '),
+    imprimirElemento(Y, I+1).
+
+%Predicado que da paso a la impresión de una fila de cuadrados
+imprimirElemento([X|Y], I):-
+    (0 is I mod 27),
+    write(X), write(' |'),nl,
+    write('+-------+-------+-------+'),nl,
+    imprimirElemento(Y, I+1).
+
+%Predicado que da paso a la impresión de una fila de elementos
+imprimirElemento([X|Y], I):-
+    (0 is I mod 9),
+    write(X), write(' |'), nl,
+    imprimirElemento(Y, I+1).
+
+%Predicado que da paso a la impresión de los elementos del cuadro siguiente perteneciente a la fila
+imprimirElemento([X|Y], I):-
+    (1 is I mod 3),
+    write('| '), write(X), write(' '),
+    imprimirElemento(Y, I+1).
+
+%Predicado que imprime cualquier otro elemento del tablero
+imprimirElemento([X|Y], I):-
+    write(X), write(' '),
     imprimirElemento(Y, I+1).
 
 
