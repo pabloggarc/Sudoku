@@ -1,4 +1,4 @@
-sudoku([.,.,3,.,2,.,7,.,.,5,.,.,.,.,.,4,.,3,.,.,.,3,.,.,.,2,5,.,.,5,.,1,.,6,.,.,.,.,4,8,.,7,.,.,.,2,3,7,6,.,4,8,.,.,.,8,.,.,.,2,.,7,.,3,.,.,4,.,.,2,.,8,.,.,9,.,.,.,.,6,.],P).
+%sudoku([.,.,3,.,2,.,7,.,.,5,.,.,.,.,.,4,.,3,.,.,.,3,.,.,.,2,5,.,.,5,.,1,.,6,.,.,.,.,4,8,.,7,.,.,.,2,3,7,6,.,4,8,.,.,.,8,.,.,.,2,.,7,.,3,.,.,4,.,.,2,.,8,.,.,9,.,.,.,.,6,.],P).
 
 %%%---UTILIDADES---
 
@@ -6,17 +6,17 @@ sudoku([.,.,3,.,2,.,7,.,.,5,.,.,.,.,.,4,.,3,.,.,.,3,.,.,.,2,5,.,.,5,.,1,.,6,.,.,
 reemplazar([_|T], 0, X, [X|T]).
 
 %Reemplazar el elemento i-ésimo de una lista por un elemento dado (recursividad)
-reemplazar([H|T], I, X, [H|R]):- 
-    I > 0, 
-    NA is I - 1, 
+reemplazar([H|T], I, X, [H|R]):-
+    I > 0,
+    NA is I - 1,
     reemplazar(T, NA, X, R).
 
 
 %%%---SUDOKU---
 
 %Predicado que declara e imprime el tablero inicial
-sudoku([X|Y],P) :-
-    imprimirElemento([X|Y], 1).
+/**sudoku([X|Y],P) :-
+    imprimirElemento([X|Y], 1).**/
 
 
 %%%---IMPRESIÓN POR PANTALLA DEL TABLERO (ASCII ART)---
@@ -55,18 +55,26 @@ imprimirElemento([X|Y], I):-
     write(X), write(' '),
     imprimirElemento(Y, I+1).
 
+%%%---SACAR UNA LISTA CON LA FILA, COLUMNA Y CUADRO N---
+/**fila(T, N, 1, F) :-
+    F = N.
+fila(T, N, E, F) :-
+    P = (9 * F) + E - 1,
+    nth0(P, T, X),
+    append(N, [X], N1),
+    fila(T, N1, E-1, F).**/
 
-fila(T, I, F) :- 
+fila(T, I, F) :-
     %Calculamos índices en T
     I1 is I * 9 ,
-    I2 is I * 9 + 1, 
-    I3 is I * 9 + 2, 
-    I4 is I * 9 + 3, 
-    I5 is I * 9 + 4, 
-    I6 is I * 9 + 5, 
-    I7 is I * 9 + 6, 
-    I8 is I * 9 + 7, 
-    I9 is I * 9 + 8, 
+    I2 is I * 9 + 1,
+    I3 is I * 9 + 2,
+    I4 is I * 9 + 3,
+    I5 is I * 9 + 4,
+    I6 is I * 9 + 5,
+    I7 is I * 9 + 6,
+    I8 is I * 9 + 7,
+    I9 is I * 9 + 8,
 
     %Obtenemos los elementos por índice
     nth0(I1, T, X1),
@@ -87,15 +95,15 @@ fila(T, I, F) :-
 
 columna(T, I, C) :-
     %Calculamos índices en T
-    I1 is I , 
-    I2 is I + 9, 
-    I3 is I + (9 * 2), 
-    I4 is I + (9 * 3), 
-    I5 is I + (9 * 4), 
-    I6 is I + (9 * 5), 
-    I7 is I + (9 * 6), 
-    I8 is I + (9 * 7), 
-    I9 is I + (9 * 8), 
+    I1 is I ,
+    I2 is I + 9,
+    I3 is I + (9 * 2),
+    I4 is I + (9 * 3),
+    I5 is I + (9 * 4),
+    I6 is I + (9 * 5),
+    I7 is I + (9 * 6),
+    I8 is I + (9 * 7),
+    I9 is I + (9 * 8),
 
     %Obtenemos los elementos por índice
     nth0(I1, T, X1),
@@ -115,17 +123,17 @@ columna(T, I, C) :-
 %
 cuadro(T, I, C) :-
     %Calculamos índices en T
-    X is I mod 3, 
-    Y is I // 3, 
-    I1 is (3 * X) + (27 * Y), 
-    I2 is I1 + 1, 
-    I3 is I2 + 1, 
-    I4 is I1 + 9, 
-    I5 is I2 + 9, 
-    I6 is I3 + 9, 
-    I7 is I4 + 9, 
-    I8 is I5 + 9, 
-    I9 is I6 + 9, 
+    X is I mod 3,
+    Y is I // 3,
+    I1 is (3 * X) + (27 * Y),
+    I2 is I1 + 1,
+    I3 is I2 + 1,
+    I4 is I1 + 9,
+    I5 is I2 + 9,
+    I6 is I3 + 9,
+    I7 is I4 + 9,
+    I8 is I5 + 9,
+    I9 is I6 + 9,
 
     %Obtenemos los elementos por índice
     nth0(I1, T, X1),
@@ -141,160 +149,52 @@ cuadro(T, I, C) :-
     %Creamos una nueva lista con los valores
     C = [X1, X2, X3, X4, X5, X6, X7, X8, X9].
 
-    %Predicado que al preguntar devuelve todas las posibilidades de un elemento en una lista
-    %Hazme un predicado que haga una cosa u otra dependiendo de si un elemento es par o impar
+%%%---DEVOLUCIÓN DE POSIBILIDADES---
 
-    posibilidades(T, F, C, S, P):-
-    (I is F * 9 + C,
-    nth0(I, T, X),
-    member(X, [1, 2, 3, 4, 5, 6, 7, 8, 9]),
-    P = [X]);
-    (L = [1, 2, 3, 4, 5, 6, 7, 8, 9],
-    fila(T, F, Fila),
-    columna(T, C, Columna),
-    cuadro(T, S, Cuadro),
-    subtract(L, Fila, L1),
-    subtract(L1, Columna, L2),
-    subtract(L2, Cuadro, L3),
-    P = L3).
+%Predicado base que devuelve en R la lista de posibilidades de un tablero T
+    hacerPosibilidades(_, TD, 81, R):-
+      R = TD.
 
-    %Predicado que al preguntar rellena todas las posibilidades de los elementos restantes de una fila
-    posibilidadesFila(T, F, P):-
-    posibilidades(T, F, 0, 3 * (F // 3), P0),
-    posibilidades(T, F, 1, 3 * (F // 3), P1),
-    posibilidades(T, F, 2, 3 * (F // 3), P2),
-    posibilidades(T, F, 3, 3 * (F // 3) + 1, P3),
-    posibilidades(T, F, 4, 3 * (F // 3) + 1, P4),
-    posibilidades(T, F, 5, 3 * (F // 3) + 1, P5),
-    posibilidades(T, F, 6, 3 * (F // 3) + 2, P6),
-    posibilidades(T, F, 7, 3 * (F // 3) + 2, P7),
-    posibilidades(T, F, 8, 3 * (F // 3) + 2, P8),
-    P = [P0, P1, P2, P3, P4, P5, P6, P7, P8].
+%Predicado que devuelve las probabilidades en el tablero (en el caso de que el siguiente elemento ya haya sido dado)
+  hacerPosibilidades(T,TP, I, TD):-
+      (N = [1,2,3,4,5,6,7,8,9]),
+      nth0(I, T, X),
+      member(X, N),
+      append(TP, [[X]], TN),
+      (NI is I+1),
+      hacerPosibilidades(T, TN, NI, TD).
 
-    posibilidadesSudoku(T, P):-
-    posibilidadesFila(T, 0, P0),
-    posibilidadesFila(T, 1, P1),
-    posibilidadesFila(T, 2, P2),
-    posibilidadesFila(T, 3, P3),
-    posibilidadesFila(T, 4, P4),
-    posibilidadesFila(T, 5, P5),
-    posibilidadesFila(T, 6, P6),
-    posibilidadesFila(T, 7, P7),
-    posibilidadesFila(T, 8, P8),
-    append(P0, P1, P01),
-    append(P01, P2, P012),
-    append(P012, P3, P0123),
-    append(P0123, P4, P01234),
-    append(P01234, P5, P012345),
-    append(P012345, P6, P0123456),
-    append(P0123456, P7, P01234567),
-    append(P01234567, P8, P012345678),
-    P = P012345678.
+%Predicado que devuelve las probabilidades en el tablero
+    hacerPosibilidades(T, TP, I, TD):-
+        (N = [1,2,3,4,5,6,7,8,9]),
+        (F is I//9),
+        (C is I mod 9),
+        (S is 3 * (F // 3) + C // 3),
+        fila(T, F, Fila),
+        columna(T, C, Columna),
+        cuadro(T, S, Cuadro),
+        subtract(N, Fila, P1),
+        subtract(P1, Columna, P2),
+        subtract(P2, Cuadro, P),
+      append(TP, [P], TN),
+      (NI is I+1),
+      hacerPosibilidades(T, TN, NI, TD).
 
-    eliminarAparicionesFila(T, F, E, P):-
-    fila(T, F, Fila),
-    nth0(0, Fila, X0),
-    nth0(1, Fila, X1),
-    nth0(2, Fila, X2),
-    nth0(3, Fila, X3),
-    nth0(4, Fila, X4),
-    nth0(5, Fila, X5),
-    nth0(6, Fila, X6),
-    nth0(7, Fila, X7),
-    nth0(8, Fila, X8),
-    subtract(X0, E, P0),
-    subtract(X1, E, P1),
-    subtract(X2, E, P2),
-    subtract(X3, E, P3),
-    subtract(X4, E, P4),
-    subtract(X5, E, P5),
-    subtract(X6, E, P6),
-    subtract(X7, E, P7),
-    subtract(X8, E, P8),
-    reemplazar(T, (F*9), P0, T0),
-    reemplazar(T0, (F*9)+1, P1, T1),
-    reemplazar(T1, (F*9)+2, P2, T2),
-    reemplazar(T2, (F*9)+3, P3, T3),
-    reemplazar(T3, (F*9)+4, P4, T4),
-    reemplazar(T4, (F*9)+5, P5, T5),
-    reemplazar(T5, (F*9)+6, P6, T6),
-    reemplazar(T6, (F*9)+7, P7, T7),
-    reemplazar(T7, (F*9)+8, P8, T8),
-    P = T8.
+    simplificacion(T, _, I, R):-
+      (81 is I),
+      write('acaba'),nl,
+        R = T.
+    simplificacion(T, P, I, R):-
+      write(I),nl,
+        (nth0(I, P, X)),
+        (length(X, L)),
+        (1 is L),
+        (nth0(0, X, X1)),
+        (reemplazar(T, I, X1, NT)),
+      NI is I+1,
+        (simplificacion(NT, P, NI, R)).
 
-    eliminarAparicionesColumna(T, C, E, P):-
-    columna(T, C, Columna),
-    nth0(0, Columna, X0),
-    nth0(1, Columna, X1),
-    nth0(2, Columna, X2),
-    nth0(3, Columna, X3),
-    nth0(4, Columna, X4),
-    nth0(5, Columna, X5),
-    nth0(6, Columna, X6),
-    nth0(7, Columna, X7),
-    nth0(8, Columna, X8),
-    subtract(X0, E, P0),
-    subtract(X1, E, P1),
-    subtract(X2, E, P2),
-    subtract(X3, E, P3),
-    subtract(X4, E, P4),
-    subtract(X5, E, P5),
-    subtract(X6, E, P6),
-    subtract(X7, E, P7),
-    subtract(X8, E, P8),
-    reemplazar(T, C, P0, T0),
-    reemplazar(T0, C+9, P1, T1),
-    reemplazar(T1, C+18, P2, T2),
-    reemplazar(T2, C+27, P3, T3),
-    reemplazar(T3, C+36, P4, T4),
-    reemplazar(T4, C+45, P5, T5),
-    reemplazar(T5, C+54, P6, T6),
-    reemplazar(T6, C+63, P7, T7),
-    reemplazar(T7, C+72, P8, T8),
-    P = T8.
-
-    eliminarAparicionesCuadro(T, S, E, P):-
-    cuadro(T, S, Cuadro),
-    nth0(0, Cuadro, X0),
-    nth0(1, Cuadro, X1),
-    nth0(2, Cuadro, X2),
-    nth0(3, Cuadro, X3),
-    nth0(4, Cuadro, X4),
-    nth0(5, Cuadro, X5),
-    nth0(6, Cuadro, X6),
-    nth0(7, Cuadro, X7),
-    nth0(8, Cuadro, X8),
-    subtract(X0, E, P0),
-    subtract(X1, E, P1),
-    subtract(X2, E, P2),
-    subtract(X3, E, P3),
-    subtract(X4, E, P4),
-    subtract(X5, E, P5),
-    subtract(X6, E, P6),
-    subtract(X7, E, P7),
-    subtract(X8, E, P8),
-    reemplazar(T, 3 * S, P0, T0),
-    reemplazar(T0, 3 * S + 1, P1, T1),
-    reemplazar(T1, 3 * S + 2, P2, T2),
-    reemplazar(T2, 3 * S + 9, P3, T3),
-    reemplazar(T3, 3 * S + 10, P4, T4),
-    reemplazar(T4, 3 * S + 11, P5, T5),
-    reemplazar(T5, 3 * S + 18, P6, T6),
-    reemplazar(T6, 3 * S + 19, P7, T7),
-    reemplazar(T7, 3 * S + 20, P8, T8),
-    P = T8.
-
-    simplificacion0(T, F, C, S, P):-
-    I is F * 9 + C,
-    (nth0(I, T, X)),
-    length(X, L),
-    L = 1,
-    eliminarAparicionesFila(T, F, X, T0),
-    eliminarAparicionesColumna(T0, C, X, T1),
-    eliminarAparicionesCuadro(T1, S, X, T2),
-    reemplazar(T2, I, X, P0),
-    P = P0.
-    
-
-    
-
+  simplificacion(T, P, I, R):-
+      write(I), nl,
+      (NI is I+1),
+        (simplificacion(T, P, NI, R)).
