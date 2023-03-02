@@ -1,16 +1,29 @@
 %sudoku([.,.,3,.,2,.,7,.,.,5,.,.,.,.,.,4,.,3,.,.,.,3,.,.,.,2,5,.,.,5,.,1,.,6,.,.,.,.,4,8,.,7,.,.,.,2,3,7,6,.,4,8,.,.,.,8,.,.,.,2,.,7,.,3,.,.,4,.,.,2,.,8,.,.,9,.,.,.,.,6,.],P).
 
-%%%---UTILIDADES---
+%---UTILIDADES---
 
 %Reemplazar el primer elemento de una lista por un elemento dado
 reemplazar([_|T], 0, X, [X|T]).
-
-%Reemplazar el elemento i-ésimo de una lista por un elemento dado (recursividad)
 reemplazar([H|T], I, X, [H|R]):-
     I > 0,
     NA is I - 1,
     reemplazar(T, NA, X, R).
 
+%Contar las apariciones de un elemento en una lista
+contar([], _, 0). 
+contar([X|Y], X, I):-
+    contar(Y, X, I1), 
+    I is I1+1.
+contar([_|Y], X, I):-
+    contar(Y, X, I). 
+
+%Comprobar si un elemento está en una lista con números y listas o dentro de esas listas
+apareceMixto([X|_], X). 
+apareceMixto([[X|_]|_], X). 
+apareceMixto([[_|Y]|_], X):-
+    apareceMixto(Y, X). 
+apareceMixto([_|Y], X):-
+    apareceMixto(Y, X). 
 
 %%%---SUDOKU---
 
@@ -120,7 +133,7 @@ columna(T, I, C) :-
     C = [X1, X2, X3, X4, X5, X6, X7, X8, X9].
 
 %Predicado que al preguntar devuelve en C el cuadro i-ésimo del tablero T (C e [0, 8])
-%
+
 cuadro(T, I, C) :-
     %Calculamos índices en T
     X is I mod 3,
@@ -149,57 +162,56 @@ cuadro(T, I, C) :-
     %Creamos una nueva lista con los valores
     C = [X1, X2, X3, X4, X5, X6, X7, X8, X9].
 
-%%%---DEVOLUCIÓN DE POSIBILIDADES---
+%---DEVOLUCIÓN DE POSIBILIDADES---
 
-%Haz un factorial
 %Predicado base que devuelve en R la lista de posibilidades de un tablero T
-  hacerPosibilidades(_, 81, []).
+hacerPosibilidades(_, 81, []).
 
 
 %Predicado que devuelve las probabilidades en el tablero (en el caso de que el siguiente elemento ya haya sido dado)
-  hacerPosibilidades(T, I, TD):-
-      (I < 81),
-      (N = [1,2,3,4,5,6,7,8,9]),
-      nth0(I, T, X),
-      member(X, N),
-      (NI is I+1),
-      hacerPosibilidades(T, NI, TNN),
-      append([[X]], TNN, TD).
+hacerPosibilidades(T, I, TD):-
+    (I < 81),
+    (N = [1,2,3,4,5,6,7,8,9]),
+    nth0(I, T, X),
+    member(X, N),
+    (NI is I+1),
+    hacerPosibilidades(T, NI, TNN),
+    append([[X]], TNN, TD).
 
 %Predicado que devuelve las probabilidades en el tablero
-    hacerPosibilidades(T, I, TD):-
-        (I < 81),
-        (N = [1,2,3,4,5,6,7,8,9]),
-        (F is I//9),
-        (C is I mod 9),
-        (S is 3 * (F // 3) + C // 3),
-        fila(T, F, Fila),
-        columna(T, C, Columna),
-        cuadro(T, S, Cuadro),
-        subtract(N, Fila, P1),
-        subtract(P1, Columna, P2),
-        subtract(P2, Cuadro, P),
-        (NI is I+1),
-        hacerPosibilidades(T, NI, TNN),
-        append([P], TNN, TD).
+hacerPosibilidades(T, I, TD):-
+    (I < 81),
+    (N = [1,2,3,4,5,6,7,8,9]),
+    (F is I//9),
+    (C is I mod 9),
+    (S is 3 * (F // 3) + C // 3),
+    fila(T, F, Fila),
+    columna(T, C, Columna),
+    cuadro(T, S, Cuadro),
+    subtract(N, Fila, P1),
+    subtract(P1, Columna, P2),
+    subtract(P2, Cuadro, P),
+    (NI is I+1),
+    hacerPosibilidades(T, NI, TNN),
+    append([P], TNN, TD).
 
-    hacerPosibilidades(T):-
-        hacerPosibilidades(T, 0, P), write(P).
+hacerPosibilidades(T):-
+    hacerPosibilidades(T, 0, P), write(P).
 
-    simplificacion(T, _, 81, R):-
-        R = T.
+simplificacion(T, _, 81, R):-
+    R = T.
 
-    simplificacion(T, P, I, R):-
-        (nth0(I, P, X)),
-        (length(X, L)),
-        (1 is L),
-        (nth0(0, X, X1)),
-        (reemplazar(T, I, X1, NT)),
-        NI is I+1,
-        (simplificacion(NT, P, NI, R)).
+simplificacion(T, P, I, R):-
+    (nth0(I, P, X)),
+    (length(X, L)),
+    (1 is L),
+    (nth0(0, X, X1)),
+    (reemplazar(T, I, X1, NT)),
+    NI is I+1,
+    (simplificacion(NT, P, NI, R)).
 
-    simplificacion(T, P, I, R):-
-        (NI is I+1),
-        (simplificacion(T, P, NI, R)).
+simplificacion(T, P, I, R):-
+    (NI is I+1),
+    (simplificacion(T, P, NI, R)).
 
 %Haz un fact
