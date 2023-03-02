@@ -151,21 +151,24 @@ cuadro(T, I, C) :-
 
 %%%---DEVOLUCIÓN DE POSIBILIDADES---
 
+%Haz un factorial
 %Predicado base que devuelve en R la lista de posibilidades de un tablero T
-    hacerPosibilidades(_, TD, 81, R):-
-      R = TD.
+  hacerPosibilidades(_, 81, []).
+
 
 %Predicado que devuelve las probabilidades en el tablero (en el caso de que el siguiente elemento ya haya sido dado)
-  hacerPosibilidades(T,TP, I, TD):-
+  hacerPosibilidades(T, I, TD):-
+      (I < 81),
       (N = [1,2,3,4,5,6,7,8,9]),
       nth0(I, T, X),
       member(X, N),
-      append(TP, [[X]], TN),
       (NI is I+1),
-      hacerPosibilidades(T, TN, NI, TD).
+      hacerPosibilidades(T, NI, TNN),
+      append([[X]], TNN, TD).
 
 %Predicado que devuelve las probabilidades en el tablero
-    hacerPosibilidades(T, TP, I, TD):-
+    hacerPosibilidades(T, I, TD):-
+        (I < 81),
         (N = [1,2,3,4,5,6,7,8,9]),
         (F is I//9),
         (C is I mod 9),
@@ -176,25 +179,27 @@ cuadro(T, I, C) :-
         subtract(N, Fila, P1),
         subtract(P1, Columna, P2),
         subtract(P2, Cuadro, P),
-      append(TP, [P], TN),
-      (NI is I+1),
-      hacerPosibilidades(T, TN, NI, TD).
+        (NI is I+1),
+        hacerPosibilidades(T, NI, TNN),
+        append([P], TNN, TD).
 
-    simplificacion(T, _, I, R):-
-      (81 is I),
-      write('acaba'),nl,
+    hacerPosibilidades(T):-
+        hacerPosibilidades(T, 0, P), write(P).
+
+    simplificacion(T, _, 81, R):-
         R = T.
+
     simplificacion(T, P, I, R):-
-      write(I),nl,
         (nth0(I, P, X)),
         (length(X, L)),
         (1 is L),
         (nth0(0, X, X1)),
         (reemplazar(T, I, X1, NT)),
-      NI is I+1,
+        NI is I+1,
         (simplificacion(NT, P, NI, R)).
 
-  simplificacion(T, P, I, R):-
-      write(I), nl,
-      (NI is I+1),
+    simplificacion(T, P, I, R):-
+        (NI is I+1),
         (simplificacion(T, P, NI, R)).
+
+%Haz un fact
