@@ -9,13 +9,18 @@ reemplazar([H|T], I, X, [H|R]):-
     NA is I - 1,
     reemplazar(T, NA, X, R).
 
-%Contar las apariciones de un elemento en una lista
-contar([], _, 0). 
-contar([X|Y], X, I):-
-    contar(Y, X, I1), 
-    I is I1+1.
-contar([_|Y], X, I):-
-    contar(Y, X, I). 
+%Contar las apariciones de un elemento en una lista de listas
+%Si aparece n veces en una sub-lista contabilizará como una aparición más
+contarApariciones([], _, 0).
+contarApariciones([X|Y], E, T):-
+   member(E, X),
+   contarApariciones(Y, E, NT),
+   T is 1 + NT.
+
+contarApariciones([X|Y], E, T):-
+   	not(member(E, X)),
+    contarApariciones(Y, E, NT),
+    T is NT.
 
 %Comprobar si un elemento está en una lista con números y listas o dentro de esas listas
 apareceMixto([X|_], X). 
