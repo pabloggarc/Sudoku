@@ -42,11 +42,23 @@ conflictivos(I, L):-
     append(LDS, LFC, LL),
     subtract(LL, [I], L).
 
+%Predicado que, dado un índice, quita un elemento dado del resto de índices conflictivos
+quitarElementoDeConflictivos(TP,[],_,TP).
+
+quitarElementoDeConflictivos(TP, [X|Y], E, NTP):-
+    (nth0(X, TP, L)),
+    (subtract(L, [E], NL)),
+    reemplazar(TP, X, NL, NTP1),
+    quitarElementoDeConflictivos(NTP1, Y, E, NTP).
+
+
 %%%---SUDOKU---
 
 %Predicado que declara e imprime el tablero inicial
-/**sudoku([X|Y],P) :-
-    imprimirElemento([X|Y], 1).**/
+sudoku([X|Y],P) :-
+    imprimirElemento([X|Y], 1),
+    hacerPosibilidades([X|Y], TP),
+    simplificarConRegla0(TP, P).
 
 
 %%%---IMPRESIÓN POR PANTALLA DEL TABLERO (ASCII ART)---
@@ -212,23 +224,25 @@ hacerPosibilidades(T, I, TD):-
     hacerPosibilidades(T, NI, TNN),
     append([P], TNN, TD).
 
-hacerPosibilidades(T):-
-    hacerPosibilidades(T, 0, P), write(P).
+hacerPosibilidades(T, TP):-
+    hacerPosibilidades(T, 0, TP).
 
-simplificacion(T, _, 81, R):-
-    R = T.
+%Predicado que simplifica lo más que puede utilizando solo la regla 0
+regla0(TP, 81, _,TP).
 
-simplificacion(T, P, I, R):-
-    (nth0(I, P, X)),
+regla0(TP, I, V, R):-
+    (not(member(I,V))),
+    (nth0(I, TP, X)),
     (length(X, L)),
     (1 is L),
     (nth0(0, X, X1)),
-    (reemplazar(T, I, X1, NT)),
-    NI is I+1,
-    (simplificacion(NT, P, NI, R)).
+    (conflictivos(I, C)),
+    (quitarElementoDeConflictivos(TP, C, X1, NTP)),
+    (regla0(NTP, 0, [I|V], R)).
 
-simplificacion(T, P, I, R):-
+regla0(TP, I, V, R):-
     (NI is I+1),
-    (simplificacion(T, P, NI, R)).
+    (regla0(TP, NI, V, R)).
 
-%Haz un fact
+simplificarConRegla0(TP, TS0):-
+    regla0(TP, 0, [], TS0).
