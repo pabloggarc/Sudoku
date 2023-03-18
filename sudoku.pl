@@ -18,17 +18,17 @@ contarApariciones([X|Y], E, T):-
    T is 1 + NT.
 
 contarApariciones([X|Y], E, T):-
-   	not(member(E, X)),
+    not(member(E, X)),
     contarApariciones(Y, E, NT),
     T is NT.
 
 %Comprobar si un elemento está en una lista con números y listas o dentro de esas listas
-apareceMixto([X|_], X). 
-apareceMixto([[X|_]|_], X). 
+apareceMixto([X|_], X).
+apareceMixto([[X|_]|_], X).
 apareceMixto([[_|Y]|_], X):-
-    apareceMixto(Y, X). 
+    apareceMixto(Y, X).
 apareceMixto([_|Y], X):-
-    apareceMixto(Y, X). 
+    apareceMixto(Y, X).
 
 %Sacar las posiciones conflictivas de un índice del sudoku
 conflictivos(I, L):-
@@ -56,14 +56,25 @@ quitarElementoDeConflictivos(TP, [X|Y], E, NTP):-
     reemplazar(TP, X, NL, NTP1),
     quitarElementoDeConflictivos(NTP1, Y, E, NTP).
 
+%Predicado que recibe una lista de listas de 1 elemento, las cuales unifica en una sola. Sive para conservar el mismo formato de entrada y salida
+darFormato([], TF, TF).
+
+darFormato([X|Y], L, TF):-
+    nth0(0, X, E),
+    append(L, [E], NL),
+    darFormato(Y, NL, TF).
 
 %%%---SUDOKU---
 
 %Predicado que declara e imprime el tablero inicial
-sudoku([X|Y],P) :-
+sudoku([X|Y]) :-
+    write('Sudoku a resolver'), nl,
     imprimirElemento([X|Y], 1),
     hacerPosibilidades([X|Y], TP),
-    simplificarConRegla0(TP, P).
+    resolver(TP, 0, SF),
+    write('Solución'), nl,
+    imprimirElemento(SF, 1).
+
 
 
 %%%---IMPRESIÓN POR PANTALLA DEL TABLERO (ASCII ART)---
@@ -249,5 +260,73 @@ regla0(TP, I, V, R):-
     (NI is I+1),
     (regla0(TP, NI, V, R)).
 
+
+%Predicado que simplifica todas las casillas del sudoku 
+regla1(TP, 81, TP).
+
+regla1(TP, I, NTP):-
+    nth0(I, TP, X),
+    subregla1(TP, I, X, NNTP),
+    NI is I+1,
+    regla1(NNTP, NI, NTP).
+
+%Predicados que simplifican de acuerdo con la regla 1 en una única casilla del sudoku
+subregla1(TP, I, [X|_], NTP):-
+    IF is I//9,
+    fila(TP, IF, F),
+    contarApariciones(F, X, N),
+    1 is N,
+    reemplazar(TP, I, [X], NTP).
+
+subregla1(TP, I, [X|_], NTP):-
+    IC is I mod 9,
+    columna(TP, IC, C),
+    contarApariciones(C, X, N),
+    1 is N,
+    reemplazar(TP, I, [X], NTP).
+
+subregla1(TP, I, [X|_], NTP):-
+    (IF is I//9),
+    (IC is I mod 9),
+    (IS is 3 * (IF // 3) + IC // 3),
+    cuadro(TP, IS, S),
+    contarApariciones(S, X, N),
+    1 is N,
+    reemplazar(TP, I, [X], NTP).
+
+subregla1(TP, _, [], TP).
+
+subregla1(TP, I, [_|Y], NTP):-
+    subregla1(TP, I, Y, NTP).
+
+%Predicado que simplifica el sudoku de acuerdo con la regla 0
 simplificarConRegla0(TP, TS0):-
     regla0(TP, 0, [], TS0).
+%Predicado que simplifica el sudoku de acuerdo con la regla 1
+simplificarConRegla1(TP, P):-
+    regla1(TP, 0, P).
+
+%Predicado que simplifica el sudoku de acuerdo con las 4 reglas enunciadas
+simplificar(TP, P):-
+    simplificarConRegla0(TP, NTP0),
+    simplificarConRegla1(NTP0, P).
+
+%Predicado que resuelve el sudoku dadas las posibilidades del mismo, simplificando hasta que todas las casillas tengan posibilidad 1
+resolver(TP, 81, TF):-
+    darFormato(TP, [], TF).
+
+resolver(TP, I, SF):-
+    nth0(I, TP, L),
+    length(L, LN),
+    1 is LN,
+    NI is I+1,
+    resolver(TP, NI, SF).
+
+resolver(TP, _, SF):-
+    simplificar(TP, TS),
+    resolver(TS, 0, SF).
+
+
+
+
+
