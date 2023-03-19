@@ -22,6 +22,18 @@ contarApariciones([X|Y], E, T):-
     contarApariciones(Y, E, NT),
     T is NT.
 
+%Contar apariciones de, por ejemplo, [a, b] en las casillas de posibilidades (reglas 2 y 3)   
+contarSemejantes([], _, 0). 
+contarSemejantes([X|Y], E, T):-
+    X = E, 
+    contarSemejantes(Y, E, NT), 
+    T is 1 + NT. 
+
+contarSemejantes([X|Y], E, T):-
+    not(X = E), 
+    contarSemejantes(Y, E, NT), 
+    T is NT. 
+
 %Comprobar si un elemento está en una lista con números y listas o dentro de esas listas
 apareceMixto([X|_], X).
 apareceMixto([[X|_]|_], X).
