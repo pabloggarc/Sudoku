@@ -81,8 +81,24 @@ quitarElementoDeConflictivos(TP, [X|Y], E, NTP):-
 %Dado el tablero, una lista de indices, y unos elementos a borrar, en cada indice quita los elementos de la lista (reglas 2 y 3)
 quitarLista(TP, [], _, TP).
 quitarLista(TP, [X|Y], L, NTP):-
+    L = [3,6],
+    nth0(X, TP, E),
+    write('Restantes:'), write(Y),nl,
+    write('E:'),write(E),nl,
+    not(E = L),
+    length(E, LE),
+    length(L, LL),
+    LE > LL,
+    subtract(E, L, D),
+    write('D:'),write(D),nl,
+    reemplazar(TP, X, D, NNTP),
+    quitarLista(NNTP, Y, L, NTP).
+quitarLista(TP, [X|Y], L, NTP):-
     nth0(X, TP, E),
     not(E = L),
+    length(E, LE),
+    length(L, LL),
+    LE > LL,
     subtract(E, L, D),
     reemplazar(TP, X, D, NNTP),
     quitarLista(NNTP, Y, L, NTP).
@@ -107,6 +123,7 @@ sudoku([X|Y]) :-
     write('Sudoku a resolver'), nl,
     imprimirElemento([X|Y], 1),
     hacerPosibilidades([X|Y], TP),
+    imprimirElemento(TP, 1),nl,
     resolver(TP, 0, SF),
     write('Soluci\xF3n'), nl,
     imprimirElemento(SF, 1).
@@ -352,6 +369,16 @@ subregla2(TP, I, L, NTP):-
     2 is T,
     indicesFila(IF, IFS),
     quitarLista(TP, IFS, L, NTP).
+    
+subregla2(TP, I, L, NTP):-
+    length(L, LN),
+    2 is LN,
+    IC is I mod 9,
+    columna(TP, IC, C),
+    contarSemejantes(C, L, T),
+    2 is T,
+    indicesColumna(IC, ICS),
+    quitarLista(TP, ICS, L, NTP).
 
 subregla2(TP, I, L, NTP):-
     length(L, LN),
@@ -435,7 +462,8 @@ simplificar(TP, P):-
     simplificarConRegla0(TP, NTP0),
     simplificarConRegla1(NTP0, NTP1),
     simplificarConRegla2(NTP1, NTP2),
-    simplificarConRegla3(NTP2, P).
+    simplificarConRegla3(NTP2, P),
+    write("Simplificacion"), nl, imprimirElemento(P, 1).
 
 %Predicado que resuelve el sudoku dadas las posibilidades del mismo, simplificando hasta que todas las casillas tengan posibilidad 1
 resolver(TP, 81, TF):-
