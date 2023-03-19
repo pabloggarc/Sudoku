@@ -10,7 +10,7 @@ reemplazar([H|T], I, X, [H|R]):-
     reemplazar(T, NA, X, R).
 
 %Contar las apariciones de un elemento en una lista de listas
-%Si aparece n veces en una sub-lista contabilizará como una aparición más
+%Si aparece n veces en una sub-lista contabilizará como una aparición mas
 contarApariciones([], _, 0).
 contarApariciones([X|Y], E, T):-
    member(E, X),
@@ -22,17 +22,17 @@ contarApariciones([X|Y], E, T):-
     contarApariciones(Y, E, NT),
     T is NT.
 
-%Contar apariciones de, por ejemplo, [a, b] en las casillas de posibilidades (reglas 2 y 3)   
-contarSemejantes([], _, 0). 
+%Contar apariciones de, por ejemplo, [a, b] en las casillas de posibilidades (reglas 2 y 3)
+contarSemejantes([], _, 0).
 contarSemejantes([X|Y], E, T):-
-    X = E, 
-    contarSemejantes(Y, E, NT), 
-    T is 1 + NT. 
+    X = E,
+    contarSemejantes(Y, E, NT),
+    T is 1 + NT.
 
 contarSemejantes([X|Y], E, T):-
-    not(X = E), 
-    contarSemejantes(Y, E, NT), 
-    T is NT. 
+    not(X = E),
+    contarSemejantes(Y, E, NT),
+    T is NT.
 
 %Comprobar si un elemento está en una lista con números y listas o dentro de esas listas
 apareceMixto([X|_], X).
@@ -43,26 +43,26 @@ apareceMixto([_|Y], X):-
     apareceMixto(Y, X).
 
 %Predicado para obtener las filas, columnas, y cuadros dado su indice
-indicesFila(I, F):-
+indicesFila(F, LF):-
     F0 is 9*F, F1 is (9*F)+1, F2 is (9*F)+2, F3 is (9*F)+3, F4 is (9*F)+4, F5 is (9*F)+5, F6 is (9*F)+6, F7 is (9*F)+7, F8 is (9*F)+8,
-    LF = [F0, F1, F2, F3, F4, F5, F6, F7, F8]. 
+    LF = [F0, F1, F2, F3, F4, F5, F6, F7, F8].
 
-indicesColumna(I, C):-
+indicesColumna(C, LC):-
     C0 is C, C1 is C+9, C2 is C+18, C3 is C+27, C4 is C+36, C5 is C+45, C6 is C+54, C7 is C+63, C8 is C+72,
-    LC = [C0, C1, C2, C3, C4, C5, C6, C7, C8]. 
+    LC = [C0, C1, C2, C3, C4, C5, C6, C7, C8].
 
-indicesCuadro(I, S):-
+indicesCuadro(S, LS):-
     S0 is S, S1 is S+1, S2 is S+2, S3 is S+9, S4 is S+10, S5 is S+11, S6 is S+18, S7 is S+19, S8 is S+20,
-    LS = [S0, S1, S2, S3, S4, S5, S6, S7, S8]. 
+    LS = [S0, S1, S2, S3, S4, S5, S6, S7, S8].
 
 %Sacar las posiciones conflictivas de un índice del sudoku
 conflictivos(I, L):-
     F is (I//9),
     C is (I mod 9),
     S is 27 * (F//3) + 3 * (C//3),
-    indicesFila(F, LF), 
-    indicesColumna(C, LC), 
-    indicesCuadro(S, LS), 
+    indicesFila(F, LF),
+    indicesColumna(C, LC),
+    indicesCuadro(S, LS),
     subtract(LC, LF, LDC),
     append(LF, LDC, LFC),
     subtract(LS, LFC, LDS),
@@ -79,18 +79,18 @@ quitarElementoDeConflictivos(TP, [X|Y], E, NTP):-
     quitarElementoDeConflictivos(NTP1, Y, E, NTP).
 
 %Dado el tablero, una lista de indices, y unos elementos a borrar, en cada indice quita los elementos de la lista (reglas 2 y 3)
-quitarLista(TP, [], _, TP). 
+quitarLista(TP, [], _, TP).
 quitarLista(TP, [X|Y], L, NTP):-
     nth0(X, TP, E),
-    not(E = L), 
-    subtract(E, L, D), 
-    reemplazar(TP, X, D, NNTP), 
-    quitarLista(NNTP, Y, L, NTP). 
+    not(E = L),
+    subtract(E, L, D),
+    reemplazar(TP, X, D, NNTP),
+    quitarLista(NNTP, Y, L, NTP).
 
 quitarLista(TP, [X|Y], L, NTP):-
     nth0(X, TP, E),
     E = L,
-    quitarLista(TP, Y, L, NTP). 
+    quitarLista(TP, Y, L, NTP).
 
 %Predicado que recibe una lista de listas de 1 elemento, las cuales unifica en una sola. Sive para conservar el mismo formato de entrada y salida
 darFormato([], TF, TF).
@@ -297,7 +297,7 @@ regla0(TP, I, V, R):-
     (regla0(TP, NI, V, R)).
 
 
-%Predicado que simplifica todas las casillas del sudoku 
+%Predicado que simplifica todas las casillas del sudoku
 regla1(TP, 81, TP).
 
 regla1(TP, I, NTP):-
@@ -335,17 +335,107 @@ subregla1(TP, _, [], TP).
 subregla1(TP, I, [_|Y], NTP):-
     subregla1(TP, I, Y, NTP).
 
+regla2(TP, 81, TP).
+
+regla2(TP, I, NTP):-
+    nth0(I, TP, X),
+    subregla2(TP, I, X, NNTP),
+    NI is I+1,
+    regla2(NNTP, NI, NTP).
+
+subregla2(TP, I, L, NTP):-
+    length(L, LN),
+    2 is LN,
+    IF is I//9,
+    fila(TP, IF, F),
+    contarSemejantes(F, L, T),
+    2 is T,
+    indicesFila(IF, IFS),
+    quitarLista(TP, IFS, L, NTP).
+
+subregla2(TP, I, L, NTP):-
+    length(L, LN),
+    2 is LN,
+    IC is I mod 9,
+    columna(TP, IC, C),
+    contarSemejantes(C, L, T),
+    2 is T,
+    indicesColumna(IC, ICS),
+    quitarLista(TP, ICS, L, NTP).
+
+subregla2(TP, I, L, NTP):-
+    length(L, LN),
+    2 is LN,
+    IF is I//9,
+    IC is I mod 9,
+    IS is 3 * (IF // 3) + IC // 3,
+    cuadro(TP, IS, S),
+    contarSemejantes(S, L, T),
+    2 is T,
+    indicesCuadro(IS, ISS),
+    quitarLista(TP, ISS, L, NTP).
+
+subregla2(TP, _, _, TP).
+
+regla3(TP, 81, TP).
+
+regla3(TP, I, NTP):-
+    nth0(I, TP, X),
+    subregla3(TP, I, X, NNTP),
+    NI is I+1,
+    regla2(NNTP, NI, NTP).
+
+subregla3(TP, I, L, NTP):-
+    length(L, LN),
+    3 is LN,
+    IF is I//9,
+    fila(TP, IF, F),
+    contarSemejantes(F, L, T),
+    3 is T,
+    indicesFila(IF, IFS),
+    quitarLista(TP, IFS, L, NTP).
+
+subregla3(TP, I, L, NTP):-
+    length(L, LN),
+    3 is LN,
+    IC is I mod 9,
+    columna(TP, IC, C),
+    contarSemejantes(C, L, T),
+    3 is T,
+    indicesColumna(IC, ICS),
+    quitarLista(TP, ICS, L, NTP).
+
+subregla3(TP, I, L, NTP):-
+    length(L, LN),
+    3 is LN,
+    IF is I//9,
+    IC is I mod 9,
+    IS is 3 * (IF // 3) + IC // 3,
+    cuadro(TP, IS, S),
+    contarSemejantes(S, L, T),
+    3 is T,
+    indicesCuadro(IS, ISS),
+    quitarLista(TP, ISS, L, NTP).
+
+subregla3(TP, _, _, TP).
+
 %Predicado que simplifica el sudoku de acuerdo con la regla 0
 simplificarConRegla0(TP, TS0):-
     regla0(TP, 0, [], TS0).
 %Predicado que simplifica el sudoku de acuerdo con la regla 1
 simplificarConRegla1(TP, P):-
     regla1(TP, 0, P).
+simplificarConRegla2(TP, P):-
+    regla2(TP, 0, P).
+simplificarConRegla3(TP, P):-
+    regla3(TP, 0, P).
 
 %Predicado que simplifica el sudoku de acuerdo con las 4 reglas enunciadas
 simplificar(TP, P):-
     simplificarConRegla0(TP, NTP0),
-    simplificarConRegla1(NTP0, P).
+    simplificarConRegla1(NTP0, NTP1),
+    simplificarConRegla2(NTP1, NTP2),
+    simplificarConRegla3(NTP2, P).
 
 %Predicado que resuelve el sudoku dadas las posibilidades del mismo, simplificando hasta que todas las casillas tengan posibilidad 1
 resolver(TP, 81, TF):-
