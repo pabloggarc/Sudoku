@@ -80,19 +80,24 @@ quitarElementoDeConflictivos(TP, [X|Y], E, NTP):-
 
 %Dado el tablero, una lista de indices, y unos elementos a borrar, en cada indice quita los elementos de la lista (reglas 2 y 3)
 quitarLista(TP, [], _, TP).
-% quitarLista(TP, [X|Y], L, NTP):-
-%     L = [3,6],
-%     nth0(X, TP, E),
-%     write('Restantes:'), write(Y),nl,
-%     write('E:'),write(E),nl,
-%     not(E = L),
-%     length(E, LE),
-%     length(L, LL),
-%     LE > LL,
-%     subtract(E, L, D),
-%     write('D:'),write(D),nl,
-%     reemplazar(TP, X, D, NNTP),
-%     quitarLista(NNTP, Y, L, NTP).
+quitarLista(TP, [X|Y], L, NTP):-
+    %L = [3,6],
+    nth0(X, TP, E),
+    write('Restantes:'), write(Y),nl,
+    write('E:'),write(E),nl,
+    not(E = L),
+    length(E, LE),
+    length(L, LL),
+    LE > LL,
+    subtract(E, L, D),
+    length(D, LD), 
+    LD > 0,
+    write('D:'),write(D),nl,
+    reemplazar(TP, X, D, NNTP),
+    write('he reemplazado'), nl, 
+    nth0(X, NNTP, W),
+    write('reemplazamiento:'), write(W), nl, 
+    quitarLista(NNTP, Y, L, NTP).
 quitarLista(TP, [X|Y], L, NTP):-
     nth0(X, TP, E),
     not(E = L),
@@ -114,7 +119,7 @@ quitarLista(TP, [X|Y], L, NTP):-
     subtract(E, L, D),
     length(D, LD), 
     0 is LD, 
-    quitarLista(NTP, Y, L, NTP).
+    quitarLista(TP, Y, L, NTP).
 
 quitarLista(TP, [X|Y], L, NTP):-
     nth0(X, TP, E),
@@ -476,7 +481,7 @@ simplificar(TP, P):-
     simplificarConRegla1(NTP0, NTP1),
     simplificarConRegla2(NTP1, NTP2),
     simplificarConRegla3(NTP2, P),
-    write("Simplificacion"), nl, imprimirElemento(P, 1).
+    write("Simplificaci\xF3n"), nl, imprimirElemento(P, 1).
 
 %Predicado que resuelve el sudoku dadas las posibilidades del mismo, simplificando hasta que todas las casillas tengan posibilidad 1
 resolver(TP, 81, TF):-
