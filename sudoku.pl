@@ -75,40 +75,31 @@ quitarElementoDeConflictivos(TP,[],_,TP).
 quitarElementoDeConflictivos(TP, [X|Y], E, NTP):-
     (nth0(X, TP, L)),
     (subtract(L, [E], NL)),
-    NL = [],
-    reemplazar(TP, X, NL, NTP1),
-    quitarElementoDeConflictivos(NTP1, Y, E, NTP).
-quitarElementoDeConflictivos(TP, [X|Y], E, NTP):-
-    (nth0(X, TP, L)),
-    (subtract(L, [E], NL)),
     reemplazar(TP, X, NL, NTP1),
     quitarElementoDeConflictivos(NTP1, Y, E, NTP).
 
 %Dado el tablero, una lista de indices, y unos elementos a borrar, en cada indice quita los elementos de la lista (reglas 2 y 3)
 quitarLista(TP, [], _, TP).
-
+quitarLista(TP, [X|Y], L, NTP):-
+    nth0(X, TP, E),
+    E = L,
+    quitarLista(TP, Y, L, NTP).
 quitarLista(TP, [X|Y], L, NTP):-
     nth0(X, TP, E),
     not(E = L),
     length(E, LE),
     length(L, LL),
     LE >= LL,
-    subtract(E, L, D),
+    subtract(E, L, D), 
     reemplazar(TP, X, D, NNTP),
     quitarLista(NNTP, Y, L, NTP).
-
 quitarLista(TP, [X|Y], L, NTP):-
     nth0(X, TP, E),
     not(E = L),
     length(E, LE),
     length(L, LL),
     LE < LL,
-    quitarLista(TP, Y, L, NTP).
-
-quitarLista(TP, [X|Y], L, NTP):-
-    nth0(X, TP, E),
-    E = L,
-    quitarLista(TP, Y, L, NTP).
+	quitarLista(TP, Y, L, NTP).
 
 %Predicado que recibe una lista de listas de 1 elemento, las cuales unifica en una sola. Sive para conservar el mismo formato de entrada y salida
 darFormato([], TF, TF).
@@ -122,7 +113,7 @@ darFormato([X|Y], L, TF):-
 
 %Predicado que declara e imprime el tablero inicial
 sudoku([X|Y]) :-
-    %write('Sudoku a resolver'), nl,
+    write('Sudoku a resolver'), nl,
     %imprimirElemento([X|Y], 1),
     hacerPosibilidades([X|Y], TP),
     %imprimirElemento(TP, 1),nl,
@@ -370,7 +361,6 @@ subregla2(TP, I, L, NTP):-
     contarSemejantes(F, L, T),
     2 is T,
     indicesFila(IF, IFS),
-    write('he hecho subregla21 con el indice' ), write(I), write('sustituyendo los indices '), write(IFS),write(IF),nl,
     quitarLista(TP, IFS, L, NTP).
 
 subregla2(TP, I, L, NTP):-
@@ -381,7 +371,6 @@ subregla2(TP, I, L, NTP):-
     contarSemejantes(C, L, T),
     2 is T,
     indicesColumna(IC, ICS),
-    write('he hecho subregla22 con el indice' ), write(I),write('sustituyendo los indices '), write(ICS),write(IC),nl,
     quitarLista(TP, ICS, L, NTP).
 
 subregla2(TP, I, L, NTP):-
@@ -393,8 +382,8 @@ subregla2(TP, I, L, NTP):-
     cuadro(TP, IS, S),
     contarSemejantes(S, L, T),
     2 is T,
-    indicesCuadro(IS, ISS),
-    write('he hecho subregla23 con el indice' ), write(I),write('sustituyendo los indices '), write(ISS),write(IS),nl,
+    ISI is 27 * (IF//3) + 3 * (IC//3),
+    indicesCuadro(ISI, ISS),
     quitarLista(TP, ISS, L, NTP).
 
 subregla2(TP, _, _, TP).
@@ -415,6 +404,7 @@ subregla3(TP, I, L, NTP):-
     contarSemejantes(F, L, T),
     3 is T,
     indicesFila(IF, IFS),
+    write("he aplicado regla3"),
     quitarLista(TP, IFS, L, NTP).
 
 subregla3(TP, I, L, NTP):-
@@ -425,6 +415,7 @@ subregla3(TP, I, L, NTP):-
     contarSemejantes(C, L, T),
     3 is T,
     indicesColumna(IC, ICS),
+    write("he aplicado regla3"),
     quitarLista(TP, ICS, L, NTP).
 
 subregla3(TP, I, L, NTP):-
@@ -436,7 +427,9 @@ subregla3(TP, I, L, NTP):-
     cuadro(TP, IS, S),
     contarSemejantes(S, L, T),
     3 is T,
-    indicesCuadro(IS, ISS),
+    ISI is 27 * (IF//3) + 3 * (IC//3),
+    indicesCuadro(ISI, ISS),
+    write("he aplicado regla3"),
     quitarLista(TP, ISS, L, NTP).
 
 subregla3(TP, _, _, TP).
@@ -455,13 +448,9 @@ simplificarConRegla3(TP, P):-
 %Predicado que simplifica el sudoku de acuerdo con las 4 reglas enunciadas
 simplificar(TP, P):-
     simplificarConRegla0(TP, NTP0),
-    write('Regla0:'),nl,imprimirElemento(NTP0,1),nl,
     simplificarConRegla1(NTP0, NTP1),
-    write('Regla1:'),nl,imprimirElemento(NTP1,1),nl,
     simplificarConRegla2(NTP1, NTP2),
-    write('Regla2:'),nl,imprimirElemento(NTP2,1),nl,
-    simplificarConRegla3(NTP2, P),
-    write('Regla3:'),nl,imprimirElemento(P,1),nl.
+    simplificarConRegla3(NTP2, P).
     %write("Simplificaci\xF3n"), nl, imprimirElemento(P, 1).
 
 %Predicado que resuelve el sudoku dadas las posibilidades del mismo, simplificando hasta que todas las casillas tengan posibilidad 1
@@ -478,7 +467,3 @@ resolver(TP, I, SF):-
 resolver(TP, _, SF):-
     simplificar(TP, TS),
     resolver(TS, 0, SF).
-
-
-
-
