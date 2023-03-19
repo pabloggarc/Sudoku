@@ -75,38 +75,26 @@ quitarElementoDeConflictivos(TP,[],_,TP).
 quitarElementoDeConflictivos(TP, [X|Y], E, NTP):-
     (nth0(X, TP, L)),
     (subtract(L, [E], NL)),
+    NL = [],
+    reemplazar(TP, X, NL, NTP1),
+    write('He reemplazado '), write(L), write(' por '), write(NL), write('aqui el tablero que tenia antes'), nl, imprimirElemento(TP,1),
+    quitarElementoDeConflictivos(NTP1, Y, E, NTP).
+quitarElementoDeConflictivos(TP, [X|Y], E, NTP):-
+    (nth0(X, TP, L)),
+    (subtract(L, [E], NL)),
     reemplazar(TP, X, NL, NTP1),
     quitarElementoDeConflictivos(NTP1, Y, E, NTP).
 
 %Dado el tablero, una lista de indices, y unos elementos a borrar, en cada indice quita los elementos de la lista (reglas 2 y 3)
 quitarLista(TP, [], _, TP).
-quitarLista(TP, [X|Y], L, NTP):-
-    %L = [3,6],
-    nth0(X, TP, E),
-    write('Restantes:'), write(Y),nl,
-    write('E:'),write(E),nl,
-    not(E = L),
-    length(E, LE),
-    length(L, LL),
-    LE > LL,
-    subtract(E, L, D),
-    length(D, LD), 
-    LD > 0,
-    write('D:'),write(D),nl,
-    reemplazar(TP, X, D, NNTP),
-    write('he reemplazado'), nl, 
-    nth0(X, NNTP, W),
-    write('reemplazamiento:'), write(W), nl, 
-    quitarLista(NNTP, Y, L, NTP).
+
 quitarLista(TP, [X|Y], L, NTP):-
     nth0(X, TP, E),
     not(E = L),
     length(E, LE),
     length(L, LL),
-    LE > LL,
+    LE >= LL,
     subtract(E, L, D),
-    length(D, LD), 
-    LD > 0, 
     reemplazar(TP, X, D, NNTP),
     quitarLista(NNTP, Y, L, NTP).
 
@@ -115,10 +103,7 @@ quitarLista(TP, [X|Y], L, NTP):-
     not(E = L),
     length(E, LE),
     length(L, LL),
-    LE > LL,
-    subtract(E, L, D),
-    length(D, LD), 
-    0 is LD, 
+    LE < LL,
     quitarLista(TP, Y, L, NTP).
 
 quitarLista(TP, [X|Y], L, NTP):-
@@ -387,7 +372,7 @@ subregla2(TP, I, L, NTP):-
     2 is T,
     indicesFila(IF, IFS),
     quitarLista(TP, IFS, L, NTP).
-    
+
 subregla2(TP, I, L, NTP):-
     length(L, LN),
     2 is LN,
@@ -497,8 +482,3 @@ resolver(TP, I, SF):-
 resolver(TP, _, SF):-
     simplificar(TP, TS),
     resolver(TS, 0, SF).
-
-
-
-
-
