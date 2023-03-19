@@ -72,7 +72,7 @@ sudoku([X|Y]) :-
     imprimirElemento([X|Y], 1),
     hacerPosibilidades([X|Y], TP),
     resolver(TP, 0, SF),
-    write('Solución'), nl,
+    write('Soluci\xF3n'), nl,
     imprimirElemento(SF, 1).
 
 
