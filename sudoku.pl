@@ -80,19 +80,31 @@ quitarElementoDeConflictivos(TP, [X|Y], E, NTP):-
 
 %Dado el tablero, una lista de indices, y unos elementos a borrar, en cada indice quita los elementos de la lista (reglas 2 y 3)
 quitarLista(TP, [], _, TP).
+% quitarLista(TP, [X|Y], L, NTP):-
+%     L = [3,6],
+%     nth0(X, TP, E),
+%     write('Restantes:'), write(Y),nl,
+%     write('E:'),write(E),nl,
+%     not(E = L),
+%     length(E, LE),
+%     length(L, LL),
+%     LE > LL,
+%     subtract(E, L, D),
+%     write('D:'),write(D),nl,
+%     reemplazar(TP, X, D, NNTP),
+%     quitarLista(NNTP, Y, L, NTP).
 quitarLista(TP, [X|Y], L, NTP):-
-    L = [3,6],
     nth0(X, TP, E),
-    write('Restantes:'), write(Y),nl,
-    write('E:'),write(E),nl,
     not(E = L),
     length(E, LE),
     length(L, LL),
     LE > LL,
     subtract(E, L, D),
-    write('D:'),write(D),nl,
+    length(D, LD), 
+    LD > 0, 
     reemplazar(TP, X, D, NNTP),
     quitarLista(NNTP, Y, L, NTP).
+
 quitarLista(TP, [X|Y], L, NTP):-
     nth0(X, TP, E),
     not(E = L),
@@ -100,8 +112,9 @@ quitarLista(TP, [X|Y], L, NTP):-
     length(L, LL),
     LE > LL,
     subtract(E, L, D),
-    reemplazar(TP, X, D, NNTP),
-    quitarLista(NNTP, Y, L, NTP).
+    length(D, LD), 
+    0 is LD, 
+    quitarLista(NTP, Y, L, NTP).
 
 quitarLista(TP, [X|Y], L, NTP):-
     nth0(X, TP, E),
