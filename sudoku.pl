@@ -42,17 +42,27 @@ apareceMixto([[_|Y]|_], X):-
 apareceMixto([_|Y], X):-
     apareceMixto(Y, X).
 
+%Predicado para obtener las filas, columnas, y cuadros dado su indice
+indicesFila(I, F):-
+    F0 is 9*F, F1 is (9*F)+1, F2 is (9*F)+2, F3 is (9*F)+3, F4 is (9*F)+4, F5 is (9*F)+5, F6 is (9*F)+6, F7 is (9*F)+7, F8 is (9*F)+8,
+    LF = [F0, F1, F2, F3, F4, F5, F6, F7, F8]. 
+
+indicesColumna(I, C):-
+    C0 is C, C1 is C+9, C2 is C+18, C3 is C+27, C4 is C+36, C5 is C+45, C6 is C+54, C7 is C+63, C8 is C+72,
+    LC = [C0, C1, C2, C3, C4, C5, C6, C7, C8]. 
+
+indicesCuadro(I, S):-
+    S0 is S, S1 is S+1, S2 is S+2, S3 is S+9, S4 is S+10, S5 is S+11, S6 is S+18, S7 is S+19, S8 is S+20,
+    LS = [S0, S1, S2, S3, S4, S5, S6, S7, S8]. 
+
 %Sacar las posiciones conflictivas de un índice del sudoku
 conflictivos(I, L):-
     F is (I//9),
     C is (I mod 9),
     S is 27 * (F//3) + 3 * (C//3),
-    F0 is 9*F, F1 is (9*F)+1, F2 is (9*F)+2, F3 is (9*F)+3, F4 is (9*F)+4, F5 is (9*F)+5, F6 is (9*F)+6, F7 is (9*F)+7, F8 is (9*F)+8,
-    C0 is C, C1 is C+9, C2 is C+18, C3 is C+27, C4 is C+36, C5 is C+45, C6 is C+54, C7 is C+63, C8 is C+72,
-    S0 is S, S1 is S+1, S2 is S+2, S3 is S+9, S4 is S+10, S5 is S+11, S6 is S+18, S7 is S+19, S8 is S+20,
-    LF = [F0, F1, F2, F3, F4, F5, F6, F7, F8],
-    LC = [C0, C1, C2, C3, C4, C5, C6, C7, C8],
-    LS = [S0, S1, S2, S3, S4, S5, S6, S7, S8],
+    indicesFila(F, LF), 
+    indicesColumna(C, LC), 
+    indicesCuadro(S, LS), 
     subtract(LC, LF, LDC),
     append(LF, LDC, LFC),
     subtract(LS, LFC, LDS),
@@ -67,6 +77,20 @@ quitarElementoDeConflictivos(TP, [X|Y], E, NTP):-
     (subtract(L, [E], NL)),
     reemplazar(TP, X, NL, NTP1),
     quitarElementoDeConflictivos(NTP1, Y, E, NTP).
+
+%Dado el tablero, una lista de indices, y unos elementos a borrar, en cada indice quita los elementos de la lista (reglas 2 y 3)
+quitarLista(TP, [], _, TP). 
+quitarLista(TP, [X|Y], L, NTP):-
+    nth0(X, TP, E),
+    not(E = L), 
+    subtract(E, L, D), 
+    reemplazar(TP, X, D, NNTP), 
+    quitarLista(NNTP, Y, L, NTP). 
+
+quitarLista(TP, [X|Y], L, NTP):-
+    nth0(X, TP, E),
+    E = L,
+    quitarLista(TP, Y, L, NTP). 
 
 %Predicado que recibe una lista de listas de 1 elemento, las cuales unifica en una sola. Sive para conservar el mismo formato de entrada y salida
 darFormato([], TF, TF).
