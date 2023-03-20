@@ -391,7 +391,7 @@ regla3(TP, I, NTP):-
     nth0(I, TP, X),
     subregla3(TP, I, X, NNTP),
     NI is I+1,
-    regla2(NNTP, NI, NTP).
+    regla3(NNTP, NI, NTP).
 
 %Predicados que simplifican de acuerdo con la regla 3 en una única casilla del sudoku
 %Caso en el que un trío de posibilidades aparezca tres veces en una fila
