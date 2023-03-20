@@ -1,3 +1,14 @@
+/**PECL1 CRA
+Realizada por: Pablo García García y Álvaro Jesús Martínez Parra
+Laboratorio: 12.00h-14.00h
+Grupo: 1
+
+    Para ejecutar la práctica bastará con poner sudoku(L) como consulta, siendo L el tablero inicial que se pretende simplificar
+    Se imprime el tablero inicial, las posibilidades que tiene cada casilla del tablero y la máxima simplificación a la que se puede llegar
+    Si se desea imprimir cómo va simplificando el programa, se podrán quitar los comentarios del predicado simplificar según se prefiera, 
+    modificando el operador del punto por una coma si este da problemas
+**/
+
 %---UTILIDADES---
 
 %Reemplazar un elemento de una lista dado su índice I y un elemento X
@@ -161,91 +172,31 @@ imprimirElemento([X|Y], I):-
     imprimirElemento(Y, I+1).
 
 
+%---OBTENCIÓN DE ELEMENTOS DE FILA, COLUMNA Y CUADRO---
+%Predicado que, dada una lista de índices [X|Y], devuelve los elementos dentro del tablero TP correspondientes a esos índices
+cogerElementosIndice(_,[],L,L).
+cogerElementosIndice(TP,[X|Y],L,LE):-
+    nth0(X, TP, E),
+    append(L, [E], NL),
+    cogerElementosIndice(TP, Y, NL,LE).
+
+%Predicado que devuelve los elementos de la fila I-ésima dentro del tablero T
 fila(T, I, F) :-
-    %Calculamos índices en T
-    I1 is I * 9 ,
-    I2 is I * 9 + 1,
-    I3 is I * 9 + 2,
-    I4 is I * 9 + 3,
-    I5 is I * 9 + 4,
-    I6 is I * 9 + 5,
-    I7 is I * 9 + 6,
-    I8 is I * 9 + 7,
-    I9 is I * 9 + 8,
+    indicesFila(I,IF),
+    cogerElementosIndice(T,IF,[],F).
 
-    %Obtenemos los elementos por índice
-    nth0(I1, T, X1),
-    nth0(I2, T, X2),
-    nth0(I3, T, X3),
-    nth0(I4, T, X4),
-    nth0(I5, T, X5),
-    nth0(I6, T, X6),
-    nth0(I7, T, X7),
-    nth0(I8, T, X8),
-    nth0(I9, T, X9),
-
-    %Creamos una nueva lista con los valores
-    F = [X1, X2, X3, X4, X5, X6, X7, X8, X9].
-
-%Predicado que al preguntar devuelve en C la columna i-ésima del tablero T (C e [0, 8])
-%Si en cada columna hay 9 elementos, el primero de la columna i-ésima será i, el segundo i+9, el tercero i+(9*2), ..., i+(9*k)
-
+%Predicado que devuelve los elementos de la columna I-ésima dentro del tablero T
 columna(T, I, C) :-
-    %Calculamos índices en T
-    I1 is I ,
-    I2 is I + 9,
-    I3 is I + (9 * 2),
-    I4 is I + (9 * 3),
-    I5 is I + (9 * 4),
-    I6 is I + (9 * 5),
-    I7 is I + (9 * 6),
-    I8 is I + (9 * 7),
-    I9 is I + (9 * 8),
+    indicesColumna(I, IC),
+    cogerElementosIndice(T, IC, [], C).
 
-    %Obtenemos los elementos por índice
-    nth0(I1, T, X1),
-    nth0(I2, T, X2),
-    nth0(I3, T, X3),
-    nth0(I4, T, X4),
-    nth0(I5, T, X5),
-    nth0(I6, T, X6),
-    nth0(I7, T, X7),
-    nth0(I8, T, X8),
-    nth0(I9, T, X9),
-
-    %Creamos una nueva lista con los valores
-    C = [X1, X2, X3, X4, X5, X6, X7, X8, X9].
-
-%Predicado que al preguntar devuelve en C el cuadro i-ésimo del tablero T (C e [0, 8])
-
-cuadro(T, I, C) :-
-    %Calculamos índices en T
+%Predicado que devuelve los elementos del cuadro I-ésimo dentro del tablero T
+cuadro(T, I, S) :-
     X is I mod 3,
     Y is I // 3,
     I1 is (3 * X) + (27 * Y),
-    I2 is I1 + 1,
-    I3 is I2 + 1,
-    I4 is I1 + 9,
-    I5 is I2 + 9,
-    I6 is I3 + 9,
-    I7 is I4 + 9,
-    I8 is I5 + 9,
-    I9 is I6 + 9,
-
-    %Obtenemos los elementos por índice
-    nth0(I1, T, X1),
-    nth0(I2, T, X2),
-    nth0(I3, T, X3),
-    nth0(I4, T, X4),
-    nth0(I5, T, X5),
-    nth0(I6, T, X6),
-    nth0(I7, T, X7),
-    nth0(I8, T, X8),
-    nth0(I9, T, X9),
-
-    %Creamos una nueva lista con los valores
-    C = [X1, X2, X3, X4, X5, X6, X7, X8, X9].
-
+    indicesCuadro(I1, IS),
+    cogerElementosIndice(T, IS, [], S).
 
 %---DEVOLUCIÓN DE POSIBILIDADES---
 %
