@@ -34,14 +34,6 @@ contarSemejantes([X|Y], E, T):-
     contarSemejantes(Y, E, NT),
     T is NT.
 
-%Comprobar si un elemento está en una lista con números y listas o dentro de esas listas
-apareceMixto([X|_], X).
-apareceMixto([[X|_]|_], X).
-apareceMixto([[_|Y]|_], X):-
-    apareceMixto(Y, X).
-apareceMixto([_|Y], X):-
-    apareceMixto(Y, X).
-
 %Predicado para obtener las filas, columnas, y cuadros dado su indice
 indicesFila(F, LF):-
     F0 is 9*F, F1 is (9*F)+1, F2 is (9*F)+2, F3 is (9*F)+3, F4 is (9*F)+4, F5 is (9*F)+5, F6 is (9*F)+6, F7 is (9*F)+7, F8 is (9*F)+8,
@@ -109,16 +101,29 @@ darFormato([X|Y], L, TF):-
     append(L, [E], NL),
     darFormato(Y, NL, TF).
 
+%Predicado que cuenta los números que hay en una lista de listas
+contarNumerosSolucion([],0).
+contarNumerosSolucion([X|Y],T):-
+	length(X, L),
+	contarNumerosSolucion(Y, NT),
+	T is L + NT.
+
+%Predicado que determina si dado un tablero de sudoku, este está resuelto completamente (los 81 números en las 81 casillas)
+sudokuCompletado(SF):-
+    contarNumerosSolucion(SF, T),
+    81 is T.
+
 %%%---SUDOKU---
 
 %Predicado que declara e imprime el tablero inicial
 sudoku([X|Y]) :-
     write('Sudoku a resolver'), nl,
-    %imprimirElemento([X|Y], 1),
+    imprimirElemento([X|Y], 1),
     hacerPosibilidades([X|Y], TP),
-    %imprimirElemento(TP, 1),nl,
-    resolver(TP, 0, SF),
-    write('Soluci\xF3n'), nl,
+    write('Posibilidades del tablero:'),nl,
+    imprimirElemento(TP, 1),nl,
+    resolver(TP,[],SF),
+    write('Soluci\xF3n Final (o más simplificada)'), nl,
     imprimirElemento(SF, 1).
 
 
@@ -454,16 +459,16 @@ simplificar(TP, P):-
     %write("Simplificaci\xF3n"), nl, imprimirElemento(P, 1).
 
 %Predicado que resuelve el sudoku dadas las posibilidades del mismo, simplificando hasta que todas las casillas tengan posibilidad 1
-resolver(TP, 81, TF):-
-    darFormato(TP, [], TF).
-
-resolver(TP, I, SF):-
-    nth0(I, TP, L),
-    length(L, LN),
-    1 is LN,
-    NI is I+1,
-    resolver(TP, NI, SF).
-
-resolver(TP, _, SF):-
-    simplificar(TP, TS),
-    resolver(TS, 0, SF).
+%Resolución final encontrada, solución final del sudoku
+resolver(TN, TA, SF):-
+    TA = TN,
+    sudokuCompletado(TN),
+    darFormato(TN, [],SF).
+%Resolución final encontrada, hasta aquí se puede simplificar siguiendo las 4 reglas
+resolver(TN,TA,TN):-
+	TN = TA.
+%Resolución final no encontrada, seguir simplificando
+resolver(TN, TA, SF):-
+    not(TA=TN),
+    simplificar(TN, TS),
+    resolver(TS, TN, SF).
