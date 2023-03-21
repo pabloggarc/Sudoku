@@ -115,7 +115,7 @@ quitarLista(TP, [X|Y], L, NTP):-
     length(E, LE),
     length(L, LL),
     LE < LL,
- 	quitarLista(TP, Y, L, NTP).
+    quitarLista(TP, Y, L, NTP).
 
 %Dada una lista de indices([X|Y]) y una lista L, elimina las apariciones de los elementos de L de cada indice tal que la diferencia entre el indice y L no sea vacia (regla 3)
 quitarListaRegla3(TP, [], _, TP).
