@@ -7,6 +7,7 @@ Grupo: 1
     Se imprime el tablero inicial, las posibilidades que tiene cada casilla del tablero y la máxima simplificación a la que se puede llegar
     Si se desea imprimir cómo va simplificando el programa, se podrán quitar los comentarios del predicado simplificar según se prefiera, 
     modificando el operador del punto por una coma si este da problemas
+    Para más información acerca de los predicados, consultar la memoria de la práctica
 **/
 
 %---UTILIDADES---
@@ -30,7 +31,7 @@ contarApariciones([X|Y], E, T):-
     contarApariciones(Y, E, NT),
     T is NT.
 
-%Contar apariciones de, por ejemplo, [a, b] en las casillas de posibilidades (reglas 2 y 3)
+%Contar apariciones de, por ejemplo, [a, b] en las casillas de posibilidades (regla 2)
 contarSemejantes([], _, 0).
 contarSemejantes([X|Y], E, T):-
     X = E,
@@ -39,6 +40,21 @@ contarSemejantes([X|Y], E, T):-
 contarSemejantes([X|Y], E, T):-
     not(X = E),
     contarSemejantes(Y, E, NT),
+    T is NT.
+
+%Predicado que cuenta las apariciones de una lista de elementos dentro de una lista de listas de acuerdo con la regla 3
+%Si dentro de la lista de listas, un elemento y su diferencia con la lista que se busca es vacía, se cuenta como una aparición
+contarAparicionesRegla3([], _, 0).
+contarAparicionesRegla3([X|Y], E, T):-
+    length(X, LX),
+    LX > 1,
+    subtract(X, E, D),
+    D = [],
+    contarAparicionesRegla3(Y, E, NT),
+    T is 1 + NT.
+
+contarAparicionesRegla3([_|Y], E, T):-
+    contarAparicionesRegla3(Y, E, NT),
     T is NT.
 
 %Predicado para obtener los índices de una fila, dado el índice F de la fila (0-8)
@@ -78,7 +94,7 @@ quitarElementoDeConflictivos(TP, [X|Y], E, NTP):-
     reemplazar(TP, X, NL, NTP1),
     quitarElementoDeConflictivos(NTP1, Y, E, NTP).
 
-%Dada una lista de indices([X|Y]), y unos elementos a borrar 8L), en cada indice quita los elementos de L (reglas 2 y 3)
+%Dada una lista de indices([X|Y]), y unos elementos a borrar 8L), en cada indice quita los elementos de L (regla 2)
 quitarLista(TP, [], _, TP).
 quitarLista(TP, [X|Y], L, NTP):-
     nth0(X, TP, E),
@@ -100,6 +116,21 @@ quitarLista(TP, [X|Y], L, NTP):-
     length(L, LL),
     LE < LL,
  	quitarLista(TP, Y, L, NTP).
+
+%Dada una lista de indices([X|Y]) y una lista L, elimina las apariciones de los elementos de L de cada indice tal que la diferencia entre el indice y L no sea vacia (regla 3)
+quitarListaRegla3(TP, [], _, TP).
+quitarListaRegla3(TP, [X|Y], L, NTP):-
+    nth0(X, TP, E),
+    subtract(E, L, D),
+    D = [],
+    quitarListaRegla3(TP, Y, L, NTP).
+
+quitarListaRegla3(TP, [X|Y], L, NTP):-
+    nth0(X, TP, E),
+    subtract(E, L, D),
+    not(D = []),
+    reemplazar(TP, X, D, NNTP),
+    quitarListaRegla3(NNTP, Y, L, NTP).
 
 %Predicado que recibe una lista de listas de 1 elemento cada una y las unifica en una sola lista. 
 %Sirve para conservar el mismo formato de entrada y salida en caso de haber encontrado una solución final
@@ -133,7 +164,7 @@ sudoku([X|Y]) :-
     write('Posibilidades del tablero:'),nl,
     imprimirTablero(TP),nl,
     resolver(TP,[],SF),
-    write('Soluci\xF3n Final (o más simplificada)'), nl,
+    write('Soluci\xF3n Final (o m\xE1s simplificada)'), nl,
     imprimirTablero(SF).
 
 
@@ -334,52 +365,69 @@ subregla2(TP, I, L, NTP):-
 
 subregla2(TP, _, _, TP).
 
-
 %--REGLA 3--
 %Predicado que simplifica un tablero de posibilidades utilizando la regla 3
 regla3(TP, 81, TP).
+%La regla 3 se podría aplicar si se encuentra una casilla con 2 o 3 posibilidades. Ddas esas posibilidades se pretende encontrar 3 casillas que satisfagan la regla 3
 regla3(TP, I, NTP):-
     nth0(I, TP, X),
+    length(X, LX),
+    LX < 4,
+    LX > 1,
     subregla3(TP, I, X, NNTP),
     NI is I+1,
     regla3(NNTP, NI, NTP).
+regla3(TP, I, NTP):-
+    NI is I+1,
+    regla3(TP, NI, NTP).
 
-%Predicados que simplifican de acuerdo con la regla 3 en una única casilla del sudoku
-%Caso en el que un trío de posibilidades aparezca tres veces en una fila
-subregla3(TP, I, L, NTP):-
-    length(L, LN),
-    3 is LN,
-    IF is I//9,
+%Predicado que, tras encontrar una casilla con dos posibilidades, busca si en una fila, columna o cuadro hay otro número diferente que unido a ellos dos cumplan con la regla 3
+comprobarCombinacionesRegla3(TP, _, _, [], TP).
+comprobarCombinacionesRegla3(TP, I, X, [N|RN], NTP):-
+    append(X, [N], NX),
+    subregla3(TP, I, NX, NNTP),
+    comprobarCombinacionesRegla3(NNTP, I, X, RN, NTP).
+
+%Predicado que simplifica de acuerdo con la regla 3 en una casilla con dos posibilidades
+subregla3(TP, I, X, NTP):-
+    length(X, LX),
+    2 is LX,
+    N = [1,2,3,4,5,6,7,8,9],
+    subtract(N,X,D),
+    comprobarCombinacionesRegla3(TP, I, X, D, NTP).
+
+%Predicado que simplifica de acuerdo con la regla 3 en una casilla con tres posibilidades (fila)
+subregla3(TP, I, X, NTP):-
+    IF is (I//9),
     fila(TP, IF, F),
-    contarSemejantes(F, L, T),
-    3 is T,
+    contarAparicionesRegla3(F, X, TA),
+    3 is TA,
     indicesFila(IF, IFS),
-    quitarLista(TP, IFS, L, NTP).
-%Caso en el que un trío de posibilidades aparezca tres veces en una columna
-subregla3(TP, I, L, NTP):-
-    length(L, LN),
-    3 is LN,
-    IC is I mod 9,
+    quitarListaRegla3(TP, IFS, X, NTP).
+
+%Predicado que simplifica de acuerdo con la regla 3 en una casilla con tres posibilidades (columna)
+subregla3(TP, I, X, NTP):-
+    IC is (I mod 9),
     columna(TP, IC, C),
-    contarSemejantes(C, L, T),
-    3 is T,
+    contarAparicionesRegla3(C, X, TA),
+    3 is TA,
     indicesColumna(IC, ICS),
-    quitarLista(TP, ICS, L, NTP).
-%Caso en el que un trío de posibilidades aparezca tres veces en un cuadro
-subregla3(TP, I, L, NTP):-
-    length(L, LN),
-    3 is LN,
+    quitarListaRegla3(TP, ICS, X, NTP).
+
+%Predicado que simplifica de acuerdo con la regla 3 en una casilla con tres posibilidades (cuadro)
+subregla3(TP, I, X, NTP):-
     IF is I//9,
     IC is I mod 9,
     IS is 3 * (IF // 3) + IC // 3,
     cuadro(TP, IS, S),
-    contarSemejantes(S, L, T),
-    3 is T,
+    contarAparicionesRegla3(S, X, TA),
+    3 is TA,
     ISI is 27 * (IF//3) + 3 * (IC//3), %calculo del Índice inicial del cuadro correspondiente a la casilla I
     indicesCuadro(ISI, ISS),
-    quitarLista(TP, ISS, L, NTP).
+    quitarListaRegla3(TP, ISS, X, NTP).
 
 subregla3(TP, _, _, TP).
+
 
 
 %---SIMPLIFICACIÓN---
